@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/unidoc/unipdf/v3/common/license"
 	"github.com/unidoc/unipdf/v3/extractor"
@@ -78,6 +79,8 @@ func outputPdfText(inputPath string) error {
 	fmt.Printf("PDF to text extraction:\n")
 	fmt.Printf("--------------------\n")
 	var data = []byte{}
+	var dir = strings.Split(f.Name(), ".")[0]
+	os.MkdirAll("./"+dir, os.ModePerm)
 	for i := 0; i < numPages; i++ {
 		pageNum := i + 1
 
@@ -96,14 +99,14 @@ func outputPdfText(inputPath string) error {
 			return err
 		}
 
-		fmt.Println("------------------------------")
-		fmt.Printf("Page %d:\n", pageNum)
+		// fmt.Println("------------------------------")
+		fmt.Printf("Page %d/%d\n", pageNum, numPages)
 		data = append(data, []byte("Page "+strconv.Itoa(pageNum)+"\n")...)
 		data = append(data, []byte(text)...)
-		fmt.Printf("\"%s\"\n", text)
-		fmt.Println("------------------------------")
+		ioutil.WriteFile(dir+"/"+dir+"_Page_"+strconv.Itoa(pageNum)+".txt", []byte(text), 0600)
+		// fmt.Println("------------------------------")
 	}
-	ioutil.WriteFile("out.txt", data, 0600)
+	ioutil.WriteFile(dir+"/"+dir+"_All.txt", data, 0600)
 
 	return nil
 }
